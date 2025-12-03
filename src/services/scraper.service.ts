@@ -87,7 +87,7 @@ const scrapeWithPuppeteer = async (url: string): Promise<ScrapedContent> => {
       // Remove unwanted elements
       const unwantedSelectors = ['script', 'style', 'nav', 'footer', 'header', 'iframe'];
       unwantedSelectors.forEach(selector => {
-        document.querySelectorAll(selector).forEach(el => el.remove());
+        document.querySelectorAll(selector).forEach((el: Element) => el.remove());
       });
 
       // Get title
@@ -102,7 +102,7 @@ const scrapeWithPuppeteer = async (url: string): Promise<ScrapedContent> => {
       } else {
         // Fallback: get all paragraphs
         const paragraphs = Array.from(document.querySelectorAll('p'));
-        content = paragraphs.map(p => p.textContent).join('\n\n');
+        content = paragraphs.map((p: HTMLElement) => p.textContent).join('\n\n');
       }
 
       return { title, content };

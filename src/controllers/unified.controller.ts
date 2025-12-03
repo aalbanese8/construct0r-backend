@@ -4,7 +4,7 @@ import * as transcriptionService from '../services/transcription.service.js';
 import * as instagramService from '../services/instagram.service.js';
 
 /**
- * Unified transcribe endpoint that handles both YouTube and Instagram URLs
+ * Unified transcribe endpoint that handles YouTube, TikTok, and Instagram URLs
  */
 export const unifiedTranscribeHandler = async (req: AuthRequest, res: Response) => {
   try {
@@ -17,12 +17,13 @@ export const unifiedTranscribeHandler = async (req: AuthRequest, res: Response) 
     // Detect platform from URL
     const isYouTube = url.includes('youtube.com') || url.includes('youtu.be');
     const isInstagram = url.includes('instagram.com');
+    const isTikTok = url.includes('tiktok.com');
 
-    if (isYouTube) {
-      // Handle YouTube
+    if (isYouTube || isTikTok) {
+      // Handle YouTube and TikTok (both use yt-dlp)
       const result = await transcriptionService.transcribeYouTubeVideo(url);
       return res.json({
-        platform: 'youtube',
+        platform: isTikTok ? 'tiktok' : 'youtube',
         title: result.title,
         text: result.transcript,
         url: url,
@@ -46,7 +47,7 @@ export const unifiedTranscribeHandler = async (req: AuthRequest, res: Response) 
       });
     } else {
       return res.status(400).json({
-        error: 'Unsupported platform. Please provide a YouTube or Instagram URL.',
+        error: 'Unsupported platform. Please provide a YouTube, TikTok, or Instagram URL.',
       });
     }
   } catch (error) {

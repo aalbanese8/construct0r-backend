@@ -46,13 +46,14 @@ def extract_video_id(url):
     return None
 
 
-def compress_audio_if_needed(audio_path, max_size_mb=24):
+def compress_audio_if_needed(audio_path, max_size_mb=10):
     """
     Compress audio file if it exceeds max_size_mb using FFmpeg
+    Targets 5-10MB for optimal Whisper API performance
 
     Args:
         audio_path: Path to the audio file
-        max_size_mb: Maximum file size in MB (default 24MB for Whisper's 25MB limit with buffer)
+        max_size_mb: Maximum file size in MB (default 10MB, optimal for Whisper)
 
     Returns:
         Path to the compressed file (or original if compression not needed)
@@ -67,7 +68,8 @@ def compress_audio_if_needed(audio_path, max_size_mb=24):
     compressed_path = audio_path.replace('.mp3', '_compressed.mp3')
 
     # Use progressively lower bitrates until file is small enough
-    for bitrate in ['64k', '48k', '32k']:
+    # Speech remains perfectly intelligible even at 24kbps
+    for bitrate in ['48k', '32k', '24k']:
         try:
             # Compress using FFmpeg
             subprocess.run([
@@ -165,13 +167,13 @@ def download_youtube_audio(video_url, output_dir):
             return 0
 
         # STEP 2: No auto-transcript available, download audio for Whisper
-        # Configure yt-dlp options (lower quality to stay under 25MB limit)
+        # Configure yt-dlp options (low quality optimized for speech transcription)
         ydl_opts = {
             'format': 'bestaudio/best',
             'postprocessors': [{
                 'key': 'FFmpegExtractAudio',
                 'preferredcodec': 'mp3',
-                'preferredquality': '96',  # Lower quality for smaller files (fine for speech)
+                'preferredquality': '64',  # Low bitrate optimized for speech (perfectly audible)
             }],
             'outtmpl': os.path.join(output_dir, '%(id)s.%(ext)s'),
             'quiet': True,
@@ -190,8 +192,8 @@ def download_youtube_audio(video_url, output_dir):
             # The audio file path after conversion
             audio_path = os.path.join(output_dir, f"{video_id}.mp3")
 
-            # STEP 3: Compress audio if it exceeds Whisper's 25MB limit
-            audio_path = compress_audio_if_needed(audio_path, max_size_mb=24)
+            # STEP 3: Compress audio if over 10MB (target 5-10MB for optimal Whisper performance)
+            audio_path = compress_audio_if_needed(audio_path, max_size_mb=10)
 
             result = {
                 "title": title,

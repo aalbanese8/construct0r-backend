@@ -38,7 +38,7 @@ export const transcribeYouTubeVideo = async (videoUrl: string): Promise<{ title:
     const command = `python3 "${scriptPath}" "${videoUrl}" "${tempDir}" 2>/dev/null`;
 
     const { stdout } = await execAsync(command, {
-      timeout: 120000, // 2 minute timeout
+      timeout: 300000, // 5 minute timeout (for long videos + compression)
     });
 
     // Parse the output from Python script (only the last line should be JSON)
