@@ -22,7 +22,7 @@ router.post('/transcribe', unifiedController.unifiedTranscribeHandler);
 
 // Specific transcription endpoints (legacy support)
 router.post('/transcribe/youtube', transcriptionController.transcribeYouTubeHandler);
-router.post('/transcribe/audio', upload.single('audio'), transcriptionController.transcribeAudioHandler);
+router.post('/transcribe/audio', upload.single('audio') as any, transcriptionController.transcribeAudioHandler);
 
 // Instagram endpoint
 router.post('/extract/instagram', transcriptionController.extractInstagramHandler);
