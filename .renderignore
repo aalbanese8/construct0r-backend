@@ -1,0 +1,28 @@
+# Node modules (will be installed during build)
+node_modules/
+
+# Environment variables (set in Render dashboard)
+.env
+.env.*
+
+# Development files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+README.md
+Setup.md
+
+# DO NOT IGNORE dist/ - it's needed for deployment!
+# Render should include the built dist/ folder
