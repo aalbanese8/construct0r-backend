@@ -1,10 +1,13 @@
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import fs from 'fs/promises';
 import { transcribeAudioFile } from './transcription.service.js';
 
 const execAsync = promisify(exec);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 interface InstagramContent {
   caption: string;
@@ -28,7 +31,8 @@ export const extractInstagramContent = async (postUrl: string): Promise<Instagra
     await fs.mkdir(tempDir, { recursive: true });
 
     // Call Python script to download Instagram content
-    const scriptPath = path.join(process.cwd(), 'scripts', 'instagram_downloader.py');
+    // In production: dist/services/instagram.service.js -> scripts is at dist/scripts/
+    const scriptPath = path.join(__dirname, '..', 'scripts', 'instagram_downloader.py');
     const command = `python3 "${scriptPath}" "${postUrl}" "${tempDir}" 2>/dev/null`;
 
     const { stdout } = await execAsync(command, {

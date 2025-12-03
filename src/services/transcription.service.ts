@@ -2,10 +2,13 @@ import { openai } from './openai.service.js';
 import { createReadStream } from 'fs';
 import fs from 'fs/promises';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 
 const execAsync = promisify(exec);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export const transcribeAudioFile = async (filePath: string): Promise<string> => {
   try {
@@ -34,7 +37,8 @@ export const transcribeYouTubeVideo = async (videoUrl: string): Promise<{ title:
     await fs.mkdir(tempDir, { recursive: true });
 
     // Call Python script to download YouTube audio
-    const scriptPath = path.join(process.cwd(), 'scripts', 'youtube_downloader.py');
+    // In production: dist/services/transcription.service.js -> scripts is at dist/scripts/
+    const scriptPath = path.join(__dirname, '..', 'scripts', 'youtube_downloader.py');
     const command = `python3 "${scriptPath}" "${videoUrl}" "${tempDir}" 2>/dev/null`;
 
     const { stdout } = await execAsync(command, {
