@@ -37,8 +37,9 @@ export const transcribeYouTubeVideo = async (videoUrl: string): Promise<{ title:
     await fs.mkdir(tempDir, { recursive: true });
 
     // Call Python script to download YouTube audio
-    // In production: dist/services/transcription.service.js -> scripts is at dist/scripts/
-    const scriptPath = path.join(__dirname, '..', 'scripts', 'youtube_downloader.py');
+    // Find project root by going up from dist/services/ to project root
+    const projectRoot = path.join(__dirname, '..', '..');
+    const scriptPath = path.join(projectRoot, 'scripts', 'youtube_downloader.py');
     const command = `python3 "${scriptPath}" "${videoUrl}" "${tempDir}" 2>/dev/null`;
 
     const { stdout } = await execAsync(command, {
