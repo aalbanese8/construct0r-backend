@@ -4,8 +4,14 @@ services:
     runtime: node
     region: oregon
     plan: free
-    buildCommand: npm ci && pip3 install --break-system-packages yt-dlp instaloader youtube-transcript-api && npm run build
+    buildCommand: npm ci --prefer-offline && pip3 install --break-system-packages yt-dlp instaloader youtube-transcript-api && npm run build
     startCommand: node dist/index.js
+    buildFilter:
+      paths:
+        - src/**
+        - scripts/**
+        - package.json
+        - tsconfig.json
     healthCheckPath: /health
     envVars:
       - key: NODE_ENV
