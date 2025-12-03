@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "nodemon --exec tsx src/index.ts",
     "build": "tsc",
+    "postinstall": "pip3 install --user yt-dlp instaloader youtube-transcript-api && npm run build",
     "start": "node dist/index.js",
     "typecheck": "tsc --noEmit"
   },
