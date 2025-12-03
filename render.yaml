@@ -4,11 +4,8 @@ services:
     runtime: node
     region: oregon
     plan: free
-    buildCommand: |
-      npm install
-      pip3 install --user yt-dlp instaloader youtube-transcript-api
-      npm run build
-    startCommand: npm start
+    buildCommand: yarn install && pip3 install --user yt-dlp instaloader youtube-transcript-api && yarn build
+    startCommand: node dist/index.js
     healthCheckPath: /health
     envVars:
       - key: NODE_ENV
