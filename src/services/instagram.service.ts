@@ -27,13 +27,13 @@ export const extractInstagramContent = async (postUrl: string): Promise<Instagra
     }
 
     // Create temporary directory for downloads
-    tempDir = path.join(process.cwd(), 'uploads', `instagram-${Date.now()}`);
+    // Go up to project root (2 levels from dist/services/) then into uploads/
+    tempDir = path.join(__dirname, '..', '..', 'uploads', `instagram-${Date.now()}`);
     await fs.mkdir(tempDir, { recursive: true });
 
     // Call Python script to download Instagram content
-    // Find project root by going up from dist/services/ to project root
-    const projectRoot = path.join(__dirname, '..', '..');
-    const scriptPath = path.join(projectRoot, 'scripts', 'instagram_downloader.py');
+    // Scripts are in dist/scripts/ (one level up from dist/services/)
+    const scriptPath = path.join(__dirname, '..', 'scripts', 'instagram_downloader.py');
     const command = `python3 "${scriptPath}" "${postUrl}" "${tempDir}" 2>/dev/null`;
 
     const { stdout } = await execAsync(command, {
