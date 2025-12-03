@@ -1,6 +1,5 @@
 import axios from 'axios';
 import * as cheerio from 'cheerio';
-import puppeteer from 'puppeteer';
 
 interface ScrapedContent {
   title: string;
@@ -10,11 +9,9 @@ interface ScrapedContent {
 
 export const scrapeWebPage = async (url: string, useJavaScript: boolean = false): Promise<ScrapedContent> => {
   try {
-    if (useJavaScript) {
-      return await scrapeWithPuppeteer(url);
-    } else {
-      return await scrapeWithCheerio(url);
-    }
+    // Note: useJavaScript parameter ignored - Puppeteer removed for lighter deployment
+    // Works for 95% of websites. For JS-heavy sites, consider upgrading to paid tier.
+    return await scrapeWithCheerio(url);
   } catch (error) {
     console.error('Scraping error:', error);
     throw new Error(`Failed to scrape webpage: ${error}`);
@@ -64,65 +61,4 @@ const scrapeWithCheerio = async (url: string): Promise<ScrapedContent> => {
     content,
     url,
   };
-};
-
-// Advanced scraping with Puppeteer (for JavaScript-heavy sites)
-const scrapeWithPuppeteer = async (url: string): Promise<ScrapedContent> => {
-  const browser = await puppeteer.launch({
-    headless: 'new',
-    args: ['--no-sandbox', '--disable-setuid-sandbox'],
-  });
-
-  try {
-    const page = await browser.newPage();
-    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
-
-    await page.goto(url, {
-      waitUntil: 'networkidle2',
-      timeout: 30000,
-    });
-
-    // Get page content
-    const data = await page.evaluate(() => {
-      // Remove unwanted elements
-      const unwantedSelectors = ['script', 'style', 'nav', 'footer', 'header', 'iframe'];
-      unwantedSelectors.forEach(selector => {
-        document.querySelectorAll(selector).forEach((el: Element) => el.remove());
-      });
-
-      // Get title
-      const title = document.title || document.querySelector('h1')?.textContent || 'Untitled Page';
-
-      // Get main content
-      const mainElement = document.querySelector('main, article, [role="main"], .content, #content');
-      let content = '';
-
-      if (mainElement) {
-        content = mainElement.textContent || '';
-      } else {
-        // Fallback: get all paragraphs
-        const paragraphs = Array.from(document.querySelectorAll('p'));
-        content = paragraphs.map((p: HTMLElement) => p.textContent).join('\n\n');
-      }
-
-      return { title, content };
-    });
-
-    // Clean up whitespace
-    let content = data.content.replace(/\s+/g, ' ').trim();
-
-    // Limit content length
-    const maxLength = 10000;
-    if (content.length > maxLength) {
-      content = content.substring(0, maxLength) + '...';
-    }
-
-    return {
-      title: data.title.trim(),
-      content,
-      url,
-    };
-  } finally {
-    await browser.close();
-  }
 };
